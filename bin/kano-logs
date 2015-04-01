@@ -88,7 +88,7 @@ def show_logs(app=None, linearised=False):
             output += format_log_data(get_log_data(log)) + "\n"
 
     if len(output) > 0:
-        pydoc.pipepager(output, cmd='less -R')
+        pydoc.pipepager(output.encode('utf-8'), cmd='less -R')
 
 
 def format_log_data(data, default_app_name=""):
@@ -101,7 +101,7 @@ def format_log_data(data, default_app_name=""):
 
         dt = datetime.datetime.fromtimestamp(entry["time"])
         time = dt.strftime('%Y-%m-%d %H:%M:%S')
-        output += "{} {}[{}] {} {}\n".format(
+        output += u"{} {}[{}] {} {}\n".format(
             decorate_string_only_terminal(time, "cyan"),
             app_name,
             decorate_string_only_terminal(entry["pid"], "yellow"),
@@ -123,15 +123,15 @@ class EventHandler(pyinotify.ProcessEvent):
             all_data += data[-10:]
 
         all_data.sort(lambda a, b: cmp(a["time"], b["time"]))
-        print format_log_data(all_data),
+        print format_log_data(all_data).encode('utf-8'),
 
     def process_IN_CREATE(self, event):
         new = self._process_file(event.pathname)
-        print format_log_data(new),
+        print format_log_data(new).encode('utf-8'),
 
     def process_IN_MODIFY(self, event):
         new = self._process_file(event.pathname)
-        print format_log_data(new),
+        print format_log_data(new).encode('utf-8'),
 
     def _process_file(self, path):
         app_name = re.sub(r"\.log$", "", os.path.basename(path))
